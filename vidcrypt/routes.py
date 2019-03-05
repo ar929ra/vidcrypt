@@ -8,7 +8,8 @@ auth = HTTPBasicAuth()
 
 @app.route("/register", methods=['POST'])
 def register():
-    data = request.json
+    data = request.get_json()
+    print(data)
     
     hashed_password = bcrypt.generate_password_hash(data['password']).decode('utf-8')
     username = data['username']
@@ -35,8 +36,8 @@ def do_this():
     return jsonify({ 'data': 'Hi {0}!'.format(g.user) })
 
 @auth.verify_password
-def verify_password(email, password):
-    user = User.query.filter_by(email = email).first()
+def verify_password(username, password):
+    user = User.query.filter_by(username = username).first()
     if not user or not bcrypt.check_password_hash(user.password, password):
         return False
 
@@ -46,4 +47,4 @@ def verify_password(email, password):
 
 @app.route("/")
 def home():
-    return "This is the vid crypt API"
+    return "<h1>This is the vid crypt API</h1>"
