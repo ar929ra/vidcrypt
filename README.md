@@ -10,7 +10,9 @@ Install the necessary packages
 Run python from the vidcrypt directory and do the following
 
 > from vidcrypt import db
+
 > db.create_all()
 
 > from vidcrypt import app
+
 > app.run('0.0.0.0')
