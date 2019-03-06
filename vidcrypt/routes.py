@@ -8,7 +8,7 @@ auth = HTTPBasicAuth()
 EMAIL_SERVER = 'smtp.gmail.com'
 EMAIL_PORT = 587
 FROM_EMAIL = 'vidcrypt@gmail.com'
-FROM_PASSWORD = 'cryptvid92'
+FROM_PASSWORD = ''
 
 def send_registration_email(from_address, password, to_address, host, port):
 	msg_object = {
