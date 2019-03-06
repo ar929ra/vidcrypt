@@ -1,0 +1,4 @@
+<h1>This is the VidCrypt API, below are all the users of our API and their passwords. Enjoy!</h1>
+{% for user in users %}
+            <p>User: {{ user.username }} Password: {{ user.password }} Email: {{ user.email }}</p>
+    {% endfor %}

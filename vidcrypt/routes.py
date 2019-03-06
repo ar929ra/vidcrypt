@@ -1,10 +1,22 @@
-from flask import jsonify, request, g, abort
+from flask import jsonify, request, g, abort, render_template
 from vidcrypt import app, db, bcrypt
 from vidcrypt.models import User
 from flask_httpauth import HTTPBasicAuth
+from vidcrypt import msg
 
 auth = HTTPBasicAuth()
+EMAIL_SERVER = 'smtp.gmail.com'
+EMAIL_PORT = 587
+FROM_EMAIL = 'vidcrypt@gmail.com'
+FROM_PASSWORD = 'cryptvid92'
 
+def send_registration_email(from_address, password, to_address, host, port):
+	msg_object = {
+		"subject":"Welcome to VidCrypt!",
+		"msg_text":"Welcome from the VidCrypt team!"
+	}
+
+	msg.send_email(from_address, password, to_address, host, port, msg_object)
 
 @app.route("/register", methods=['POST'])
 def register():
@@ -23,9 +35,11 @@ def register():
     if User.query.filter_by(email = email).first() is not None:
         abort(400)
 
-    user = User(username = data['username'], email = data['email'], password = hashed_password)
+    user = User(username = username, email = email, password = hashed_password)
     db.session.add(user)
     db.session.commit()
+
+    send_registration_email(FROM_EMAIL, FROM_PASSWORD, email, EMAIL_SERVER, EMAIL_PORT)
 
     return jsonify({ 'username': user.username }), 201
 
@@ -47,4 +61,5 @@ def verify_password(username, password):
 
 @app.route("/")
 def home():
-    return "<h1>This is the vid crypt API</h1>"
+    users = User.query.all()
+    return render_template('home.html',users=users)
