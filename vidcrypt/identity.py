@@ -57,4 +57,3 @@ def login():
 
     auth_token = hashlib.sha256(user.username + app.config['SECRET_KEY'])
     return jsonify({'token': auth_token.hexdigest()}), 200
-    
