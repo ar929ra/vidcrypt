@@ -63,3 +63,6 @@ def verify_password(username, password):
 def home():
     users = User.query.all()
     return render_template('home.html',users=users)
+
+from vidcrypt import identity
+app.register_blueprint(identity.bp)
