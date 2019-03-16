@@ -43,15 +43,23 @@ class TestCase(unittest.TestCase):
 		if do_assert == 1:
 			assert json_data['username'] == 'flask'
 
-	def test_do_this(self):
+	def test_record_video(self, do_assert = 1):
 		''' Test an arbitrary protected API service '''
 		self.test_register(0)
 		headers = {
 			'Authorization': _basic_auth_str('flask', 'secret')
 		}
 
-		res = self.client.get('/do_this', headers = headers)
+		res = self.client.get('/record_video', query_string={'sha':'1234abcdef'}, headers = headers)
 		
+		if do_assert == 1:
+			assert res.status_code == 200
+
+	def test_authenticate_video(self):
+		self.test_record_video(0)
+		
+		res = self.client.get('/authenticate_video', query_string={'sha':'1234abcdef'})
+		print(res.get_data(as_text=True))
 		assert res.status_code == 200
 
 if __name__ == '__main__':

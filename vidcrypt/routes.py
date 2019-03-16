@@ -1,6 +1,6 @@
 from flask import jsonify, request, g, abort, render_template
 from vidcrypt import app, db, bcrypt
-from vidcrypt.models import User
+from vidcrypt.models import User, Video
 from flask_httpauth import HTTPBasicAuth
 from vidcrypt import msg
 
@@ -44,10 +44,42 @@ def register():
     return jsonify({ 'username': user.username }), 201
 
 
-@app.route("/do_this", methods=['GET'])
+@app.route("/record_video", methods=['GET'])
 @auth.login_required
-def do_this():
-    return jsonify({ 'data': 'Hi {0}!'.format(g.user) })
+def record_video():
+	
+    # Get the user from the request
+    username = request.authorization['username']
+    current_user = User.query.filter_by(username = username).first()
+     
+    # Extract the video's SHA hash from the query parameters
+    sha_string = request.args['sha']
+    current_video = Video(sha_string = sha_string)
+
+    # Assign the video sha to the user in the database
+    current_user.videos.append(current_video)
+    db.session.commit()
+
+    return jsonify({ 'data': 'Inserted video associated with user'})
+
+@app.route("/authenticate_video", methods=['GET'])
+def authenticate_video():
+	
+    # Get video data from get request and retrieve videos, usernames
+    sha_string = request.args['sha']
+    video = db.session.query(Video, User.username).join(User)
+
+    found = 0
+    user = 'N/A'
+
+    # Check if video matching query string is found and retrieve user associated with it
+    for video, username in video:
+	if video.sha_string == sha_string:
+		found = 1
+		user = username
+
+
+    return jsonify({'data':{'found':found, 'user':user}})	
 
 @auth.verify_password
 def verify_password(username, password):
@@ -63,6 +95,3 @@ def verify_password(username, password):
 def home():
     users = User.query.all()
     return render_template('home.html',users=users)
-
-from vidcrypt import identity
-app.register_blueprint(identity.bp)
